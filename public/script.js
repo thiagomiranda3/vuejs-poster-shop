@@ -1,10 +1,12 @@
 const PRICE = 9.99
+const LOAD_NUM = 10
 
 new Vue({
     el: "#app",
     data: {
         total: 0,
         items: [],
+        results: [],
         cart: [],
         newSearch: "anime",
         lastSearch: "",
@@ -12,13 +14,21 @@ new Vue({
         price: PRICE
     },
     methods: {
+        appendItems: function () {
+            let totalItems = this.items.length
+            if(totalItems < this.results.length) {
+                let appendItems = this.results.slice(totalItems, totalItems + LOAD_NUM)
+                this.items = this.items.concat(appendItems)
+            }
+        },
         onSubmit: function () {
             this.items = []
             this.loading = true
             this.$http
                 .get('/search/'.concat(this.newSearch))
                 .then(function (res) {
-                    this.items = res.data
+                    this.results = res.data
+                    this.appendItems()
                     this.lastSearch = this.newSearch
                     this.loading = false
                 })
@@ -60,6 +70,13 @@ new Vue({
         }
     },
     mounted: function () {
+        let vueInstance = this
         this.onSubmit();
+
+        const elem = document.getElementById("product-list-bottom")
+        const watcher = scrollMonitor.create(elem)
+        watcher.enterViewport(function () {
+            vueInstance.appendItems()
+        })
     }
 })
