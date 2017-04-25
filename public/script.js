@@ -22,6 +22,9 @@ new Vue({
             }
         },
         onSubmit: function () {
+            if(!this.newSearch.length)
+                return
+
             this.items = []
             this.loading = true
             this.$http
@@ -67,6 +70,12 @@ new Vue({
     filters: {
         moedaReal: function (price) {
             return 'R$ ' + price.toFixed(2)
+        }
+    },
+    computed: {
+        noMoreItems: function () {
+            return this.items.length === this.results.length &&
+                                         this.results.length > 0
         }
     },
     mounted: function () {
